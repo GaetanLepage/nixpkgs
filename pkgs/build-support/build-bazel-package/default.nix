@@ -10,9 +10,12 @@ args@{
 , bazelFlags ? []
 , bazelBuildFlags ? []
 , bazelTestFlags ? []
+, bazelRunFlags ? []
+, runTargetFlags ? []
 , bazelFetchFlags ? []
-, bazelTargets
+, bazelTargets ? []
 , bazelTestTargets ? []
+, bazelRunTarget ? null
 , buildAttrs
 , fetchAttrs
 
@@ -50,13 +53,16 @@ let
     bazelFlags = bazelFlags;
     bazelBuildFlags = bazelBuildFlags;
     bazelTestFlags = bazelTestFlags;
+    bazelRunFlags = bazelRunFlags;
+    runTargetFlags = runTargetFlags;
     bazelFetchFlags = bazelFetchFlags;
     bazelTestTargets = bazelTestTargets;
+    bazelRunTarget = bazelRunTarget;
     dontAddBazelOpts = dontAddBazelOpts;
   };
   fBuildAttrs = fArgs // buildAttrs;
   fFetchAttrs = fArgs // removeAttrs fetchAttrs [ "sha256" ];
-  bazelCmd = { cmd, additionalFlags, targets }:
+  bazelCmd = { cmd, additionalFlags, targets, targetRunFlags ? [ ] }:
     lib.optionalString (targets != [ ]) ''
       # See footnote called [USER and BAZEL_USE_CPP_ONLY_TOOLCHAIN variables]
       BAZEL_USE_CPP_ONLY_TOOLCHAIN=1 \
@@ -73,7 +79,8 @@ let
         "''${host_linkopts[@]}" \
         $bazelFlags \
         ${lib.strings.concatStringsSep " " additionalFlags} \
-        ${lib.strings.concatStringsSep " " targets}
+        ${lib.strings.concatStringsSep " " targets} \
+        ${lib.optionalString (targetRunFlags != []) " -- " + lib.strings.concatStringsSep " " targetRunFlags}
     '';
   # we need this to chmod dangling symlinks on darwin, gnu coreutils refuses to do so:
   # chmod: cannot operate on dangling symlink '$symlink'
@@ -134,7 +141,15 @@ stdenv.mkDerivation (fBuildAttrs // {
           targets = fFetchAttrs.bazelTargets ++ fFetchAttrs.bazelTestTargets;
         }
       }
-
+      ${
+        bazelCmd {
+          cmd = "run";
+          additionalFlags = fBuildAttrs.bazelRunFlags ++ ["--jobs" "$NIX_BUILD_CORES"];
+          # Bazel run only accepts a single target, but `bazelCmd` expects `targets` to be a list.
+          targets = if fBuildAttrs.bazelRunTarget == null then [] else [fBuildAttrs.bazelRunTarget];
+          targetRunFlags = fBuildAttrs.runTargetFlags;
+        }
+      }
       runHook postBuild
     '';
 
