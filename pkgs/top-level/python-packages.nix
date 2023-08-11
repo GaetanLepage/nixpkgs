@@ -4895,6 +4895,8 @@ self: super: with self; {
 
   httpsig = callPackage ../development/python-modules/httpsig { };
 
+  httpstan = callPackage ../development/python-modules/httpstan { };
+
   httptools = callPackage ../development/python-modules/httptools { };
 
   httpx = callPackage ../development/python-modules/httpx { };
