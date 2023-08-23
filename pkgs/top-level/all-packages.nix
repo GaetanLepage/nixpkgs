@@ -14331,6 +14331,8 @@ with pkgs;
     stdenv = if stdenv.isDarwin then llvmPackages_16.stdenv else stdenv;
   };
 
+  vtsls = callPackage ../development/tools/language-servers/vtsls { };
+
   witness = callPackage ../tools/security/witness { };
 
   openconnectPackages = callPackage ../tools/networking/openconnect { };
