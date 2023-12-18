@@ -15309,6 +15309,8 @@ self: super: with self; {
 
   torchlibrosa = callPackage ../development/python-modules/torchlibrosa { };
 
+  torchrec = callPackage ../development/python-modules/torchrec { };
+
   torchrl = callPackage ../development/python-modules/torchrl { };
 
   torchsde = callPackage ../development/python-modules/torchsde { };
