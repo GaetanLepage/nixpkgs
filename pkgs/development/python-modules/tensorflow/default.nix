@@ -348,6 +348,11 @@ let
       ./protobuf_python.patch
       ./pybind11_protobuf_python_runtime_dep.patch
       ./pybind11_protobuf_newer_version.patch
+      (fetchpatch {  # Prevents https://github.com/tensorflow/tensorflow/pull/61503
+        name = "include-cstdint-explicitly.patch";
+        url = "https://github.com/tensorflow/tensorflow/pull/61503/commits/055b7147a436360110480ba1ef97f4216e1909d8.patch";
+        hash = "sha256-3eLmKMjcbYrb/RnpEuCYj4iOK4iMs3IVy976ruKPmTk=";
+      })
     ] ++ lib.optionals (stdenv.hostPlatform.system == "aarch64-darwin") [
       ./absl_to_std.patch
     ];
