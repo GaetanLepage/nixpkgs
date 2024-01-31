@@ -24,7 +24,7 @@ let
   pyVerNoDot = builtins.replaceStrings [ "." ] [ "" ] python.pythonVersion;
   srcs = import ./binary-hashes.nix version;
   unsupported = throw "Unsupported system";
-  version = "2.1.2";
+  version = "2.2.0";
 in buildPythonPackage {
   inherit version;
 
@@ -80,7 +80,8 @@ in buildPythonPackage {
   postFixup = lib.optionalString stdenv.isLinux ''
     addAutoPatchelfSearchPath "$out/${python.sitePackages}/torch/lib"
 
-    patchelf $out/${python.sitePackages}/torch/lib/libcudnn.so.8 --add-needed libcudnn_cnn_infer.so.8
+    ls -al $out/${python.sitePackages}/torch/lib/
+    # patchelf $out/${python.sitePackages}/torch/lib/libcudnn.so.8 --add-needed libcudnn_cnn_infer.so.8
 
     pushd $out/${python.sitePackages}/torch/lib || exit 1
       for LIBNVRTC in ./libnvrtc*
