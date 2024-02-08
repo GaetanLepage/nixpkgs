@@ -248,6 +248,9 @@ in buildPythonPackage rec {
   # Also avoids pytorch exporting the headers of pybind11
   USE_SYSTEM_PYBIND11 = true;
 
+  # NB technical debt: building without NNPACK as workaround for missing `six`
+  USE_NNPACK = 0;
+
   preBuild = ''
     export MAX_JOBS=$NIX_BUILD_CORES
     ${python.pythonOnBuildForHost.interpreter} setup.py build --cmake-only
