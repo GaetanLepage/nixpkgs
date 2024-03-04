@@ -14574,6 +14574,8 @@ self: super: with self; {
 
   stm32loader = callPackage ../development/python-modules/stm32loader { };
 
+  stoix = callPackage ../development/python-modules/stoix { };
+
   stone = callPackage ../development/python-modules/stone { };
 
   stookalert = callPackage ../development/python-modules/stookalert { };
