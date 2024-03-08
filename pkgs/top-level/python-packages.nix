@@ -7803,6 +7803,10 @@ self: super: with self; {
     inherit (pkgs) mujoco;
   };
 
+  mujoco-mjx = callPackage ../development/python-modules/mujoco-mjx {
+    mujoco-lib = pkgs.mujoco;
+  };
+
   mujson = callPackage ../development/python-modules/mujson { };
 
   mwcli = callPackage ../development/python-modules/mwcli { };
