@@ -5230,6 +5230,8 @@ self: super: with self; {
 
   gymnasium = callPackage ../development/python-modules/gymnasium { };
 
+  gymnasium-robotics = callPackage ../development/python-modules/gymnasium-robotics { };
+
   gyp = callPackage ../development/python-modules/gyp { };
 
   h11 = callPackage ../development/python-modules/h11 { };
