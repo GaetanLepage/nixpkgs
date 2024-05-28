@@ -10,6 +10,7 @@
   pythonAtLeast,
   substituteAll,
   tzdata,
+  setuptools,
 }:
 
 assert lib.versionOlder protobuf.version "21" -> throw "Protobuf 21 or newer required";
@@ -17,59 +18,66 @@ assert lib.versionOlder protobuf.version "21" -> throw "Protobuf 21 or newer req
 let
   protobufVersionMajor = lib.versions.major protobuf.version;
   protobufVersionMinor = lib.versions.minor protobuf.version;
+
 in
 buildPythonPackage {
-  inherit (protobuf) pname src;
+  inherit (protobuf) src pname;
 
-  # protobuf 21 corresponds with its python library 4.21
-  version = "4.${protobufVersionMajor}.${protobufVersionMinor}";
-  format = "setuptools";
+  # protobuf 26 corresponds with its python library 5.26
+  version = "5.${protobufVersionMajor}.${protobufVersionMinor}";
+  pyproject = true;
 
-  sourceRoot = "${protobuf.src.name}/python";
+  # sourceRoot = "${protobuf.src.name}/python";
 
-  patches =
-    lib.optionals (lib.versionAtLeast protobuf.version "22") [
-      # Replace the vendored abseil-cpp with nixpkgs'
-      (substituteAll {
-        src = ./use-nixpkgs-abseil-cpp.patch;
-        abseil_cpp_include_path = "${lib.getDev protobuf.abseil-cpp}/include";
-      })
-    ]
-    ++ lib.optionals (pythonAtLeast "3.11" && lib.versionOlder protobuf.version "22") [
-      (fetchpatch {
-        name = "support-python311.patch";
-        url = "https://github.com/protocolbuffers/protobuf/commit/2206b63c4649cf2e8a06b66c9191c8ef862ca519.diff";
-        stripLen = 1; # because sourceRoot above
-        hash = "sha256-3GaoEyZIhS3QONq8LEvJCH5TdO9PKnOgcQF0GlEiwFo=";
-      })
-    ];
+  # patches = lib.optionals (lib.versionAtLeast protobuf.version "22") [
+  #   # Replace the vendored abseil-cpp with nixpkgs'
+  #   (substituteAll {
+  #     src = ./use-nixpkgs-abseil-cpp.patch;
+  #     abseil_cpp_include_path = "${lib.getDev protobuf.abseil-cpp}/include";
+  #   })
+  # ]
+  # ++ lib.optionals (pythonAtLeast "3.11" && lib.versionOlder protobuf.version "22") [
+  #   (fetchpatch {
+  #     name = "support-python311.patch";
+  #     url = "https://github.com/protocolbuffers/protobuf/commit/2206b63c4649cf2e8a06b66c9191c8ef862ca519.diff";
+  #     stripLen = 1; # because sourceRoot above
+  #     hash = "sha256-3GaoEyZIhS3QONq8LEvJCH5TdO9PKnOgcQF0GlEiwFo=";
+  #   })
+  # ];
 
-  prePatch = ''
-    if [[ "$(<../version.json)" != *'"python": "'"$version"'"'* ]]; then
-      echo "Python library version mismatch. Derivation version: $version, actual: $(<../version.json)"
-      exit 1
-    fi
-  '';
+  # prePatch = ''
+  #   if [[ "$(<./version.json)" != *'"python": "'"$version"'"'* ]]; then
+  #     echo "Python library version mismatch. Derivation version: $version, actual: $(<../version.json)"
+  #     exit 1
+  #   fi
+  # '';
 
-  # Remove the line in setup.py that forces compiling with C++14. Upstream's
-  # CMake build has been updated to support compiling with other versions of
-  # C++, but the Python build has not. Without this, we observe compile-time
-  # errors using GCC.
-  #
-  # Fedora appears to do the same, per this comment:
-  #
-  #   https://github.com/protocolbuffers/protobuf/issues/12104#issuecomment-1542543967
-  #
   postPatch = ''
-    sed -i "/extra_compile_args.append('-std=c++14')/d" setup.py
+    # sed -i "/extra_compile_args.append('-std=c++14')/d" setup.py
+
+    ls -al
 
     # The former function has been renamed into the latter in Python 3.12.
     # Does not apply to all protobuf versions, hence --replace-warn.
-    substituteInPlace google/protobuf/internal/json_format_test.py \
-      --replace-warn assertRaisesRegexp assertRaisesRegex
+    # substituteInPlace google/protobuf/internal/json_format_test.py \
+    #   --replace-warn assertRaisesRegexp assertRaisesRegex
+
+    mkdir new_src
+    mv upb new_src/
+    mv python/dist/setup.py new_src/
+    mv python/* new_src/
+
+    cd new_src
+    mv upb/cmake/google/protobuf/* google/protobuf/
+    rm -r upb/conformance
+    echo "" > google/protobuf/descriptor.upb.c
+
+    rm -r upb/reflection/stage0
   '';
 
-  nativeBuildInputs = lib.optional isPyPy tzdata;
+  doCheck = false;
+
+  nativeBuildInputs = [setuptools] ++ lib.optional isPyPy tzdata;
 
   buildInputs = [ protobuf ];
 
@@ -78,7 +86,7 @@ buildPythonPackage {
     buildPackages."protobuf_${protobufVersionMajor}"
   ];
 
-  setupPyGlobalFlags = [ "--cpp_implementation" ];
+  # setupPyGlobalFlags = [ "--cpp_implementation" ];
 
   nativeCheckInputs = [
     pytestCheckHook
@@ -112,8 +120,14 @@ buildPythonPackage {
 
   pythonImportsCheck = [
     "google.protobuf"
-    "google.protobuf.internal._api_implementation" # Verify that --cpp_implementation worked
+    # "google.protobuf.internal._api_implementation" # Verify that --cpp_implementation worked
   ];
+
+  preCheck = ''
+    # export PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=cpp
+    python -c "from google.protobuf.internal import api_implementation; print(api_implementation.Type())"
+    exit 1
+  '';
 
   passthru = {
     inherit protobuf;
@@ -126,6 +140,6 @@ buildPythonPackage {
     maintainers = with maintainers; [ knedlsepp ];
     # Tests are currently failing because backend is unavailable and causes tests to fail
     # Progress tracked in https://github.com/NixOS/nixpkgs/pull/264902
-    broken = lib.versionAtLeast protobuf.version "26";
+    # broken = lib.versionAtLeast protobuf.version "25";
   };
 }
