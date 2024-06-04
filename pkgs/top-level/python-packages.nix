@@ -10030,6 +10030,8 @@ self: super: with self; {
     inherit (pkgs.darwin.apple_sdk.frameworks) AVFoundation CoreFoundation Foundation GameplayKit MetalPerformanceShaders;
   };
 
+  pyobjc-framework-metal = callPackage ../development/python-modules/pyobjc-framework-metal { };
+
   pyogrio = callPackage ../development/python-modules/pyogrio { };
 
   pyorthanc = callPackage ../development/python-modules/pyorthanc { };
