@@ -10025,6 +10025,11 @@ self: super: with self; {
 
   pynx584 = callPackage ../development/python-modules/pynx584 { };
 
+  pyobjc-core = callPackage ../development/python-modules/pyobjc-core {
+    inherit (pkgs.darwin.apple_sdk) MacOSX-SDK;
+    inherit (pkgs.darwin.apple_sdk.frameworks) AVFoundation CoreFoundation Foundation GameplayKit MetalPerformanceShaders;
+  };
+
   pyogrio = callPackage ../development/python-modules/pyogrio { };
 
   pyorthanc = callPackage ../development/python-modules/pyorthanc { };
