@@ -187,7 +187,7 @@
   };
 
   ChatGPT-nvim = super.ChatGPT-nvim.overrideAttrs {
-    dependencies = with self; [ nui-nvim plenary-nvim telescope-nvim ];
+    dependencies = with self; [ nui-nvim plenary-nvim telescope-nvim trouble-nvim ];
   };
 
   clang_complete = super.clang_complete.overrideAttrs {
