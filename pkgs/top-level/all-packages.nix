@@ -28627,8 +28627,6 @@ with pkgs;
 
   bristol = callPackage ../applications/audio/bristol { };
 
-  brlcad = callPackage ../applications/graphics/brlcad { };
-
   bjumblr = callPackage ../applications/audio/bjumblr { };
 
   bschaffl = callPackage ../applications/audio/bschaffl { };
