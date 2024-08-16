@@ -1,13 +1,14 @@
-{ lib
-, stdenv
-, fetchFromGitHub
-, fetchpatch
-, cmake
-, fontconfig
-, libX11
-, libXi
-, freetype
-, mesa
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  fetchpatch,
+  cmake,
+  fontconfig,
+  libX11,
+  libXi,
+  freetype,
+  mesa,
 }:
 
 stdenv.mkDerivation rec {
@@ -31,9 +32,7 @@ stdenv.mkDerivation rec {
     })
   ];
 
-  nativeBuildInputs = [
-    cmake
-  ];
+  nativeBuildInputs = [ cmake ];
 
   buildInputs = [
     fontconfig
@@ -43,9 +42,7 @@ stdenv.mkDerivation rec {
     mesa
   ];
 
-  cmakeFlags = [
-    "-DBRLCAD_ENABLE_STRICT=OFF"
-  ];
+  cmakeFlags = [ "-DBRLCAD_ENABLE_STRICT=OFF" ];
 
   env.NIX_CFLAGS_COMPILE = toString [
     # Needed with GCC 12
