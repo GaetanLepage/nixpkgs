@@ -1,9 +1,9 @@
 diff --git a/meson.build b/meson.build
-index b18108c74..7e674b4d2 100644
+index 9a7e069e3..d6cbda974 100644
 --- a/meson.build
 +++ b/meson.build
-@@ -404,7 +404,7 @@ endif
-
+@@ -481,7 +481,7 @@ endif
+ 
  # EFI
  if build_standalone
 -  efi_app_location = join_paths(libexecdir, 'fwupd', 'efi')

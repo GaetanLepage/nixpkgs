@@ -123,7 +123,7 @@ let
 in
 stdenv.mkDerivation (finalAttrs: {
   pname = "fwupd";
-  version = "1.9.25";
+  version = "2.0.0";
 
   # libfwupd goes to lib
   # daemon, plug-ins and libfwupdplugin go to out
@@ -141,7 +141,7 @@ stdenv.mkDerivation (finalAttrs: {
     owner = "fwupd";
     repo = "fwupd";
     rev = finalAttrs.version;
-    hash = "sha256-Yfj2Usto4BSnnBSvffdF02UeK4Ys8ZKzEsxrd2/XZe8=";
+    hash = "sha256-7uv6xz1sPt1dDJ2pYL8gcWZqRJN2pdr6qG8WyVQM4Ns=";
   };
 
   patches = [
@@ -279,7 +279,7 @@ stdenv.mkDerivation (finalAttrs: {
     sed -i 's/test(.*)//' plugins/mtd/meson.build
     # fails on amd cpu
     sed -i 's/test(.*)//' libfwupdplugin/meson.build
-    # in nixos test tries to chmod 0777 $out/share/installed-tests/fwupd/tests/redfish.conf
+    # in nixos test tries to chmod 0777 $out/share/tests/fwupd/tests/redfish.conf
     sed -i "s/get_option('tests')/false/" plugins/redfish/meson.build
 
     # Device tests use device emulation and need to download emulation data from
@@ -288,7 +288,7 @@ stdenv.mkDerivation (finalAttrs: {
     # the device-tests directory to /dev/null.
     # For more info on device emulation, see:
     #   https://github.com/fwupd/fwupd/blob/eeeac4e9ba8a6513428b456a551bffd95d533e50/docs/device-emulation.md
-    substituteInPlace data/installed-tests/meson.build \
+    substituteInPlace data/tests/meson.build \
       --replace "join_paths(datadir, 'fwupd', 'device-tests')" "'/dev/null'"
   '';
 
@@ -307,7 +307,7 @@ stdenv.mkDerivation (finalAttrs: {
 
   postInstall = ''
     # These files have weird licenses so they are shipped separately.
-    cp --recursive --dereference "${test-firmware}/installed-tests/tests" "$installedTests/libexec/installed-tests/fwupd"
+    cp --recursive --dereference "${test-firmware}/tests/tests" "$installedTests/libexec/tests/fwupd"
   '';
 
   preFixup =
@@ -371,7 +371,7 @@ stdenv.mkDerivation (finalAttrs: {
         listToPy = list: "[${lib.concatMapStringsSep ", " (f: "'${f}'") list}]";
       in
       {
-        installedTests = nixosTests.installed-tests.fwupd;
+        installedTests = nixosTests.tests.fwupd;
 
         passthruMatches = runPythonCommand "fwupd-test-passthru-matches" ''
           import itertools
