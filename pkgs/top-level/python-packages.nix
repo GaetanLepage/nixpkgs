@@ -17147,6 +17147,8 @@ self: super: with self; {
 
   verspec = callPackage ../development/python-modules/verspec { };
 
+  vertexai = callPackage ../development/python-modules/vertexai { };
+
   vertica-python = callPackage ../development/python-modules/vertica-python { };
 
   veryprettytable = callPackage ../development/python-modules/veryprettytable { };
