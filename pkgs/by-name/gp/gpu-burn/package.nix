@@ -4,6 +4,9 @@
   cudaPackages,
   fetchFromGitHub,
   lib,
+
+  # Tested on an RTX 3060
+  cudaCapability ? "86",
 }:
 let
   inherit (lib.attrsets) getBin;
@@ -15,6 +18,7 @@ let
     cuda_cccl
     cuda_cudart
     cuda_nvcc
+    cudaVersion
     libcublas
     ;
   inherit (cudaPackages.cudaFlags) cudaCapabilities dropDot isJetsonBuild;
@@ -53,7 +57,8 @@ backendStdenv.mkDerivation {
 
   makeFlags = [
     "CUDAPATH=${getBin cuda_nvcc}"
-    "COMPUTE=${last (map dropDot cudaCapabilities)}"
+    "CUDA_VERSION=${cudaVersion}"
+    "COMPUTE=${cudaCapability}"
     "IS_JETSON=${boolToString isJetsonBuild}"
   ];
 
