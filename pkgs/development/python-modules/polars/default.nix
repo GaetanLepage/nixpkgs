@@ -19,14 +19,14 @@ in
 
 buildPythonPackage rec {
   pname = "polars";
-  version = "1.7.1";
+  version = "1.12.0";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "pola-rs";
     repo = "polars";
     rev = "refs/tags/py-${version}";
-    hash = "sha256-vbligrFrCd7BiPV8n1iRIlurPNirJKOiD4/P5qEpirg=";
+    hash = "sha256-q//vt8FvVKY9N/BOIoOwxaSB/F/tNX1Zl/9jd0AzSH4=";
   };
 
   # Cargo.lock file is sometimes behind actual release which throws an error,
@@ -40,6 +40,7 @@ buildPythonPackage rec {
     lockFile = ./Cargo.lock;
     outputHashes = {
       "numpy-0.21.0" = "sha256-u0Z+6L8pXSPaA3cE1sUpY6sCoaU1clXUcj/avnNzmsw=";
+      "polars-parquet-format-2.10.0" = "sha256-iB3KZ72JSp7tJCLn9moukpDEGf9MUos04rIQ9rDGWfI=";
     };
   };
 
