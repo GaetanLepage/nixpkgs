@@ -28,14 +28,14 @@
 
 buildPythonPackage rec {
   pname = "lancedb";
-  version = "0.13.0";
+  version = "0.15.0";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "lancedb";
     repo = "lancedb";
     rev = "refs/tags/python-v${version}";
-    hash = "sha256-6E20WgyoEALdxmiOfgq89dCkqovvIMzc/wy+kvjDWwU=";
+    hash = "sha256-3T0+IE22tnL2D98dd9kMpuRKPTZUPHNaZ5hkyuwo66w=";
   };
 
   buildAndTestSubdir = "python";
