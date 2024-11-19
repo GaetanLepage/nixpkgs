@@ -4,7 +4,16 @@
   flax,
   tomlq,
   rustPlatform,
-  pytestCheckHook,
+  python,
+
+  # build-system
+  meson-python,
+  nanobind,
+  ninja,
+
+  # nativeBuildInputs
+  cmake,
+  pkg-config,
 }:
 
 buildPythonPackage rec {
@@ -14,7 +23,7 @@ buildPythonPackage rec {
 
   inherit (flax) src;
 
-  sourceRoot = "${src.name}/flaxlib";
+  sourceRoot = "${src.name}/flaxlib_src";
 
   postPatch = ''
     expected_version="$version"
@@ -38,23 +47,23 @@ buildPythonPackage rec {
     hash = "sha256-CN/ZbDxdCQPEuLfxPh/m+JtlFDkerO8aWgAaUwhixjQ=";
   };
 
-  nativeBuildInputs = [
-    rustPlatform.maturinBuildHook
-    rustPlatform.cargoSetupHook
+  dontUseCmakeConfigure = true;
+  preConfigure = ''
+    export CMAKE_PREFIX_PATH=$(${python.interpreter} -m nanobind --cmake_dir)
+  '';
+
+  build-system = [
+    meson-python
+    nanobind
+    ninja
   ];
+  nativeBuildInputs = [
+    cmake
+    pkg-config
+  ];
+  buildInputs = [ nanobind ];
 
   pythonImportsCheck = [ "flaxlib" ];
-
-  nativeCheckInputs = [
-    pytestCheckHook
-  ];
-
-  env = {
-    # https://github.com/google/flax/issues/4491
-    # Upstream should update Cargo.lock
-    # Enabling `PYO3_USE_ABI3_FORWARD_COMPATIBILITY` allows us to temporarily avoid the issue
-    PYO3_USE_ABI3_FORWARD_COMPATIBILITY = true;
-  };
 
   # This package does not have tests (yet ?)
   doCheck = false;
@@ -68,5 +77,9 @@ buildPythonPackage rec {
     homepage = "https://github.com/google/flax/tree/main/flaxlib";
     license = lib.licenses.asl20;
     maintainers = with lib.maintainers; [ GaetanLepage ];
+    # Since flax 0.10.2, flaxlib uses meson-python and it fails to detect nanobind:
+    #    Run-time dependency nanobind found: NO (tried pkgconfig and cmake)
+    #    ../meson.build:8:15: ERROR: Dependency "nanobind" not found, tried pkgconfig and cmake
+    broken = true;
   };
 }
