@@ -91,25 +91,32 @@ let
 in
 rustPlatform.buildRustPackage rec {
   pname = "materialize";
-  version = "0.87.2";
+  version = "0.129.1";
   MZ_DEV_BUILD_SHA = "000000000000000000000000000000000000000000000000000";
 
   src = fetchFromGitHub {
     owner = "MaterializeInc";
     repo = "materialize";
     tag = "v${version}";
-    hash = "sha256-EHhN+avUxzwKU48MubiMM40W9J93yZlNqV+xeP44dl0=";
+    hash = "sha256-7t45OLmMlgVZI7Um7OlvMLNcJS0vDkqwq5SlLI0qamI=";
     fetchSubmodules = true;
   };
 
-  postPatch = ''
-    ${lib.concatStringsSep "\n" (map fetchNpmPackage npmPackages)}
-    substituteInPlace ./misc/dist/materialized.service \
-      --replace-fail /usr/bin $out/bin \
-      --replace-fail _Materialize root
-    substituteInPlace ./src/catalog/build.rs \
-      --replace-fail '&[ ' '&["."'
-  '';
+  postPatch =
+    ''
+      ${lib.concatStringsSep "\n" (map fetchNpmPackage npmPackages)}
+      substituteInPlace ./misc/dist/materialized.service \
+        --replace-fail /usr/bin $out/bin \
+        --replace-fail _Materialize root
+      substituteInPlace ./src/catalog/build.rs \
+        --replace-fail '&[ ' '&["."'
+    ''
+    # When using the lld linker in nix, the compiled binaries are not properly patched and have
+    # missing rpaths: https://github.com/NixOS/nixpkgs/issues/24744
+    + ''
+      substituteInPlace .cargo/config \
+        --replace-fail "-fuse-ld=lld" ""
+    '';
 
   env = {
     # needed for internal protobuf c wrapper library
@@ -121,7 +128,7 @@ rustPlatform.buildRustPackage rec {
   };
 
   useFetchCargoVendor = true;
-  cargoHash = "sha256-+OREisZ/vw3Oi5MNCYn7u06pZKtf+2trlGyn//uAGws=";
+  cargoHash = "sha256-FLc6WigfDoBt/43FdGjL8m2xTmndu5TJjSbKIFJygV0=";
 
   nativeBuildInputs =
     [
