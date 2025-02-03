@@ -32,14 +32,14 @@
 
 buildPythonPackage rec {
   pname = "pytensor";
-  version = "2.26.4";
+  version = "2.27.1";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "pymc-devs";
     repo = "pytensor";
     tag = "rel-${version}";
-    hash = "sha256-pREyBedkF9MW7g3Bctnk8C9vVbRTsLLreldxlqDdHVI=";
+    hash = "sha256-znaSbF4IvXtyytB8ycX2Q1Y6iXnbaxeYd8wORHiJMeE=";
   };
 
   pythonRelaxDeps = [
@@ -189,6 +189,6 @@ buildPythonPackage rec {
     ];
     # Not yet compatible with numpy >= 2.0
     # https://github.com/pymc-devs/pytensor/issues/688
-    broken = true;
+    # broken = true;
   };
 }
