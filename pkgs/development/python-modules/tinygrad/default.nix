@@ -21,18 +21,21 @@
   unicorn,
 
   # tests
+  pytestCheckHook,
+  writableTmpDirAsHomeHook,
   blobfile,
   bottle,
+  capstone,
   clang,
   hexdump,
   hypothesis,
+  jax,
   librosa,
   networkx,
   numpy,
   onnx,
   pillow,
   pytest-xdist,
-  pytestCheckHook,
   safetensors,
   sentencepiece,
   tiktoken,
@@ -45,14 +48,14 @@
 
 buildPythonPackage rec {
   pname = "tinygrad";
-  version = "0.10.0";
+  version = "0.10.1";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "tinygrad";
     repo = "tinygrad";
     tag = "v${version}";
-    hash = "sha256-IIyTb3jDUSEP2IXK6DLsI15E5N34Utt7xv86aTHpXf8=";
+    hash = "sha256-uQMPVjOG3lKGXm/Zw0TPQEvYQtpYPiK8umbQ+K8axvc=";
   };
 
   patches = [
@@ -76,6 +79,13 @@ buildPythonPackage rec {
     + lib.optionalString stdenv.hostPlatform.isLinux ''
       substituteInPlace tinygrad/runtime/autogen/opencl.py \
         --replace-fail "ctypes.util.find_library('OpenCL')" "'${ocl-icd}/lib/libOpenCL.so'"
+    ''
+    # test/test_tensor.py imports the PTX variable from the cuda_compiler.py file.
+    # This import leads to loading the libnvrtc.so library that is not substituted when cudaSupport = false.
+    # -> As a fix, we hardcode this variable to False
+    + lib.optionalString (!cudaSupport) ''
+      substituteInPlace test/test_tensor.py \
+        --replace-fail "from tinygrad.runtime.support.compiler_cuda import PTX" "PTX = False"
     ''
     # `cuda_fp16.h` and co. are needed at runtime to compile kernels
     + lib.optionalString cudaSupport ''
@@ -115,18 +125,22 @@ buildPythonPackage rec {
     ];
 
   nativeCheckInputs = [
+    pytestCheckHook
+    writableTmpDirAsHomeHook
+
     blobfile
     bottle
+    capstone
     clang
     hexdump
     hypothesis
+    jax
     librosa
     networkx
     numpy
     onnx
     pillow
     pytest-xdist
-    pytestCheckHook
     safetensors
     sentencepiece
     tiktoken
@@ -135,16 +149,14 @@ buildPythonPackage rec {
     transformers
   ] ++ networkx.optional-dependencies.extra;
 
-  preCheck = ''
-    export HOME=$(mktemp -d)
-  '';
+  # TODO: debugging
+  pytestFlagsArray = [
+    # "test/test_tensor.py"
+    "test/test_dtype.py"
+  ];
 
   disabledTests =
     [
-      # Fixed in https://github.com/tinygrad/tinygrad/pull/7792
-      # TODO: re-enable at next release
-      "test_kernel_cache_in_action"
-
       # Require internet access
       "test_benchmark_openpilot_model"
       "test_bn_alone"
@@ -179,10 +191,6 @@ buildPythonPackage rec {
       "test_vgg7"
     ]
     ++ lib.optionals (stdenv.hostPlatform.system == "aarch64-linux") [
-      # Fixed in https://github.com/tinygrad/tinygrad/pull/7796
-      # TODO: re-enable at next release
-      "test_interpolate_bilinear"
-
       # Fail with AssertionError
       "test_casts_from"
       "test_casts_to"
