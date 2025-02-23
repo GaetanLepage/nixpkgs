@@ -39,7 +39,6 @@
   pytest-mock,
   pytest-xdist,
   pytestCheckHook,
-  python-on-whales,
   re-assert,
   trustme,
 }:
@@ -109,7 +108,6 @@ buildPythonPackage rec {
     pytest-mock
     pytest-xdist
     pytestCheckHook
-    python-on-whales
     re-assert
     trustme
   ];
@@ -133,6 +131,12 @@ buildPythonPackage rec {
       "test_addresses" # https://github.com/aio-libs/aiohttp/issues/3572, remove >= v4.0.0
       "test_close"
     ];
+
+  disabledTestPaths = [
+    # Requires python-on-whales, the only aiohttp dependency that is incompatible with pydantic_1
+    # Removing it makes aiohttp overrideable with pydantic_1, which is needed by dbx
+    "tests/autobahn/test_autobahn.py"
+  ];
 
   __darwinAllowLocalNetworking = true;
 
