@@ -13618,8 +13618,6 @@ self: super: with self; {
 
   python-olm = callPackage ../development/python-modules/python-olm { };
 
-  python-on-whales = callPackage ../development/python-modules/python-on-whales { };
-
   python-opendata-transport = callPackage ../development/python-modules/python-opendata-transport { };
 
   python-openstackclient = callPackage ../development/python-modules/python-openstackclient { };
