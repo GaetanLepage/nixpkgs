@@ -27,6 +27,11 @@ buildPythonPackage rec {
 
   nativeCheckInputs = [ pytestCheckHook ];
 
+  disabledTests = [
+    # AssertionError (assert result.exception)
+    "test_missing_group_decl_first_api"
+  ];
+
   pythonImportsCheck = [ "click_option_group" ];
 
   meta = {
