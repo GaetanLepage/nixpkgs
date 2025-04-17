@@ -6,6 +6,7 @@
   cmake,
   versionCheckHook,
   nix-update-script,
+  python3Packages,
 }:
 rustPlatform.buildRustPackage (finalAttrs: {
   pname = "wasmtime";
@@ -82,6 +83,7 @@ rustPlatform.buildRustPackage (finalAttrs: {
 
   passthru = {
     updateScript = nix-update-script { };
+    tests.pythonPackage = python3Packages.wasmtime;
   };
 
   meta = {
