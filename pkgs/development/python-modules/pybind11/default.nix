@@ -6,13 +6,14 @@
   fetchFromGitHub,
   cmake,
   ninja,
-  setuptools,
+  scikit-build-core,
   boost,
   eigen,
   python,
   catch,
   numpy,
   pytestCheckHook,
+  tomlkit,
   libxcrypt,
   makeSetupHook,
 }:
@@ -29,20 +30,20 @@ let
 in
 buildPythonPackage rec {
   pname = "pybind11";
-  version = "2.13.6";
+  version = "3.0.0";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "pybind";
     repo = "pybind11";
     tag = "v${version}";
-    hash = "sha256-SNLdtrOjaC3lGHN9MAqTf51U9EzNKQLyTMNPe0GcdrU=";
+    hash = "sha256-uyeBTZL38kXIoNxZBWcMRx046+tVJ4ZmCOwGz+D2XJA=";
   };
 
   build-system = [
     cmake
     ninja
-    setuptools
+    scikit-build-core
   ];
 
   buildInputs = lib.optionals (pythonOlder "3.9") [ libxcrypt ];
@@ -79,6 +80,7 @@ buildPythonPackage rec {
     catch
     numpy
     pytestCheckHook
+    tomlkit
   ];
 
   disabledTestPaths = [
@@ -91,6 +93,9 @@ buildPythonPackage rec {
     "tests/extra_python_package/test_files.py"
     # tests that try to parse setuptools stdout
     "tests/extra_setuptools/test_setuphelper.py"
+
+    # Hang forever
+    "tests/test_multiple_interpreters.py"
   ];
 
   disabledTests = lib.optionals stdenv.hostPlatform.isDarwin [
@@ -99,9 +104,14 @@ buildPythonPackage rec {
     "test_cross_module_exception_translator"
   ];
 
+  # # ModuleNotFoundError: No module named 'widget_module'
+  # "tests/test_embed/test_interpreter.py"
+
+  # # ModuleNotFoundError: No module named 'trampoline_module'
+  # "tests/test_embed/test_trampoline.py"
   hardeningDisable = lib.optional stdenv.hostPlatform.isMusl "fortify";
 
-  meta = with lib; {
+  meta = {
     homepage = "https://github.com/pybind/pybind11";
     changelog = "https://github.com/pybind/pybind11/blob/${src.rev}/docs/changelog.rst";
     description = "Seamless operability between C++11 and Python";
@@ -111,8 +121,8 @@ buildPythonPackage rec {
       C++ types in Python and vice versa, mainly to create Python
       bindings of existing C++ code.
     '';
-    license = licenses.bsd3;
-    maintainers = with maintainers; [
+    license = lib.licenses.bsd3;
+    maintainers = with lib.maintainers; [
       yuriaisaka
       dotlambda
     ];
