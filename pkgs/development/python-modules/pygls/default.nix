@@ -3,40 +3,41 @@
   stdenv,
   buildPythonPackage,
   fetchFromGitHub,
-  lsprotocol,
+
+  # build-system
   poetry-core,
+
+  # dependencies
+  lsprotocol,
+  typeguard,
+
+  # optional-dependencies
+  websockets,
+
+  # tests
   pytest-asyncio,
   pytestCheckHook,
-  pythonOlder,
-  typeguard,
-  websockets,
+
   nix-update-script,
 }:
 
 buildPythonPackage rec {
   pname = "pygls";
-  version = "1.3.1";
+  version = "2.0.0a6";
   pyproject = true;
-
-  disabled = pythonOlder "3.7";
 
   src = fetchFromGitHub {
     owner = "openlawlibrary";
     repo = "pygls";
     tag = "v${version}";
-    hash = "sha256-AvrGoQ0Be1xKZhFn9XXYJpt5w+ITbDbj6NFZpaDPKao=";
+    hash = "sha256-S3MKg9zkjf6SXhLzUBgy3HvPkLQPgA57Ne9fqW3GHYo=";
   };
 
-  pythonRelaxDeps = [
-    # https://github.com/openlawlibrary/pygls/pull/432
-    "lsprotocol"
-  ];
-
-  nativeBuildInputs = [
+  build-system = [
     poetry-core
   ];
 
-  propagatedBuildInputs = [
+  dependencies = [
     lsprotocol
     typeguard
   ];
@@ -53,8 +54,8 @@ buildPythonPackage rec {
   # Fixes hanging tests on Darwin
   __darwinAllowLocalNetworking = true;
 
+  # Darwin issue: OSError: [Errno 24] Too many open files
   preCheck = lib.optionalString stdenv.hostPlatform.isDarwin ''
-    # Darwin issue: OSError: [Errno 24] Too many open files
     ulimit -n 1024
   '';
 
@@ -68,11 +69,11 @@ buildPythonPackage rec {
     ];
   };
 
-  meta = with lib; {
+  meta = {
     description = "Pythonic generic implementation of the Language Server Protocol";
     homepage = "https://github.com/openlawlibrary/pygls";
     changelog = "https://github.com/openlawlibrary/pygls/blob/${version}/CHANGELOG.md";
-    license = licenses.asl20;
-    maintainers = with maintainers; [ kira-bruneau ];
+    license = lib.licenses.asl20;
+    maintainers = with lib.maintainers; [ kira-bruneau ];
   };
 }
