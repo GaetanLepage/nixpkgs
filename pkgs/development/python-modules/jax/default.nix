@@ -106,11 +106,12 @@ buildPythonPackage rec {
 
     # Mostly AssertionError on numerical tests failing since 0.7.0
     # https://github.com/jax-ml/jax/issues/31428
-    "tests/export_back_compat_test.py"
-    "tests/lax_numpy_test.py"
-    "tests/lax_scipy_test.py"
-    "tests/lax_test.py"
-    "tests/linalg_test.py"
+    # TODO ---> COMMENTED FOR REPRODUCTION PURPOSES
+    # "tests/export_back_compat_test.py"
+    # "tests/lax_numpy_test.py"
+    # "tests/lax_scipy_test.py"
+    # "tests/lax_test.py"
+    # "tests/linalg_test.py"
   ];
 
   # Prevents `tests/export_back_compat_test.py::CompatTest::test_*` tests from failing on darwin with
