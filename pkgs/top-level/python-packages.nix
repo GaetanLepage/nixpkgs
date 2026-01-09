@@ -11318,6 +11318,8 @@ self: super: with self; {
     };
   };
 
+  onnxruntime-extensions = callPackage ../development/python-modules/onnxruntime-extensions { };
+
   onnxruntime-tools = callPackage ../development/python-modules/onnxruntime-tools { };
 
   onnxscript = callPackage ../development/python-modules/onnxscript { };
