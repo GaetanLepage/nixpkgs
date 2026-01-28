@@ -44,7 +44,7 @@
 
 buildPythonPackage (finalAttrs: {
   pname = "triton";
-  version = "3.5.1";
+  version = "3.6.0";
   pyproject = true;
 
   # Remember to bump triton-llvm as well!
@@ -52,7 +52,7 @@ buildPythonPackage (finalAttrs: {
     owner = "triton-lang";
     repo = "triton";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-dyNRtS1qtU8C/iAf0Udt/1VgtKGSvng1+r2BtvT9RB4=";
+    hash = "sha256-JFSpQn+WsNnh7CAPlcpOcUp0nyKXNbJEANdXqmkt4Tc=";
   };
 
   patches = [
@@ -87,6 +87,15 @@ buildPythonPackage (finalAttrs: {
         --replace-fail "[get_llvm_package_info()]" "[]" \
         --replace-fail 'yield ("triton.profiler", "third_party/proton/proton")' 'pass' \
         --replace-fail "curr_version.group(1) != version" "False"
+    ''
+    # LLVM 22+ changed llvm::sys::fs open flags.
+    # OF_None is no longer guaranteed to exist in unstable snapshots;
+    # use a default-initialized OpenFlags to mean "no flags".
+    + ''
+      substituteInPlace python/src/llvm.cc \
+        --replace-fail \
+          "llvm::raw_fd_ostream outFile(dumpFilename, EC, llvm::sys::fs::OF_None);" \
+          "llvm::raw_fd_ostream outFile(dumpFilename, EC, llvm::sys::fs::OpenFlags{});"
     ''
     # Use our `cmakeFlags` instead and avoid downloading dependencies
     + ''
