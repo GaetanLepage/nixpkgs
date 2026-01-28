@@ -20,7 +20,11 @@
 
   # tests
   chex,
+  flax,
   pytestCheckHook,
+
+  # passthru
+  orbax-export,
 }:
 
 buildPythonPackage (finalAttrs: {
@@ -54,12 +58,27 @@ buildPythonPackage (finalAttrs: {
   pythonImportsCheck = [
     "orbax"
     "orbax.export"
+    "orbax.export.bfloat16_toolkit.python"
   ];
 
   nativeCheckInputs = [
     chex
+    flax
     pytestCheckHook
   ];
+
+  preCheck = ''
+    cd orbax/export
+    rm -rf ./**/__init__.py
+    rm -rf typing
+  '';
+
+  # Circular dependency with flax
+  doCheck = false;
+
+  passthru.tests.pytest = orbax-export.overridePythonAttrs {
+    doCheck = true;
+  };
 
   meta = {
     description = "Serialization library for JAX users, enabling the exporting of JAX models to the TensorFlow SavedModel format";

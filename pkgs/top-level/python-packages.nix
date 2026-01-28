@@ -11647,6 +11647,8 @@ self: super: with self; {
 
   orbax-checkpoint = callPackage ../development/python-modules/orbax-checkpoint { };
 
+  orbax-export = callPackage ../development/python-modules/orbax-export { };
+
   ordered-set = callPackage ../development/python-modules/ordered-set { };
 
   orderedmultidict = callPackage ../development/python-modules/orderedmultidict { };
