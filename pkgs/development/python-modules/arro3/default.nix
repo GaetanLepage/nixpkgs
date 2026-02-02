@@ -10,19 +10,19 @@
   pandas,
 }:
 let
-  version = "0.5.1";
+  version = "0.6.5";
 
   src = fetchFromGitHub {
     owner = "kylebarron";
     repo = "arro3";
     tag = "py-v${version}";
-    hash = "sha256-RTr+mf5slfxxvXp9cwPuy08AZUswPtIIRz+vngdg/k0=";
+    hash = "sha256-817/pQ6cFb1NXCXu2V6O4bFsB5mcOgIkWKXpgNLoIz8=";
   };
 
   cargoDeps = rustPlatform.fetchCargoVendor {
     inherit version src;
     pname = "arro3-vendor";
-    hash = "sha256-YQA8Z86Ul8yAHncMgYrGmNe10KSpubHjaokCjaqTAxo=";
+    hash = "sha256-OsfUg9mu8aaN57Yke+ALcOiPxzCzq3FgofVJF4t2UwY=";
   };
 
   commonMeta = {
