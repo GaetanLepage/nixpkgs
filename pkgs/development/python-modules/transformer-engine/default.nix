@@ -119,7 +119,7 @@ buildPythonPackage (finalAttrs: {
   nativeCheckInputs = [
     nvdlfw-inspect
     onnxruntime
-    onnxruntime-extensions
+    # onnxruntime-extensions
     pytestCheckHook
     transformers
   ];
@@ -133,9 +133,13 @@ buildPythonPackage (finalAttrs: {
     "tests"
   ];
 
+  doCheck = false;
+
   passthru.gpuCheck = transformer-engine.overridePythonAttrs {
     requiredSystemFeatures = [ "cuda" ];
     disabledTestPaths = [ ];
+
+    doCheck = true;
   };
 
   meta = {
