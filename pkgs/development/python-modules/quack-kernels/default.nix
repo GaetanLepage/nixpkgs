@@ -8,7 +8,7 @@
 
   # dependencies
   apache-tvm-ffi,
-  nvidia-cutlass-dsl,
+  cuda-bindings,
   torch,
   torch-c-dlpack-ext,
 
@@ -32,14 +32,17 @@ buildPythonPackage (finalAttrs: {
     setuptools
   ];
 
+  pythonRemoveDeps = [
+    "nvidia-cutlass-dsl"
+  ];
   dependencies = [
     apache-tvm-ffi
-    nvidia-cutlass-dsl
+    cuda-bindings
     torch
     torch-c-dlpack-ext
   ];
 
-  pythonImportsCheck = [ "quack_kernels" ];
+  pythonImportsCheck = [ "quack" ];
 
   nativeCheckInputs = [
     pytestCheckHook
