@@ -94,18 +94,22 @@
 
 buildPythonPackage (finalAttrs: {
   pname = "transformers";
-  version = "5.5.4";
+  version = "5.12.0";
   pyproject = true;
+  __structuredAttrs = true;
 
   src = fetchFromGitHub {
     owner = "huggingface";
     repo = "transformers";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-ZqynYPj8VxH6BmvxHuw3lq16e2FFi3p8pw5of+vkz40=";
+    hash = "sha256-V0E/DxqPCHjE2kYBIjSMH6mDVpRc2wJYTqFMQhwM+ro=";
   };
 
   build-system = [ setuptools ];
 
+  pythonRelaxDeps = [
+    "tokenizers"
+  ];
   dependencies = [
     huggingface-hub
     numpy
