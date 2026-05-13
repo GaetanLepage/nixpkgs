@@ -19,8 +19,6 @@
   typing-extensions,
 
   # optional-dependencies
-  # image
-  pillow,
   # train
   accelerate,
   datasets,
@@ -34,14 +32,15 @@
 
 buildPythonPackage (finalAttrs: {
   pname = "sentence-transformers";
-  version = "5.4.1";
+  version = "5.5.1";
   pyproject = true;
+  __structuredAttrs = true;
 
   src = fetchFromGitHub {
     owner = "huggingface";
     repo = "sentence-transformers";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-VZu50DVuU0P7o3+iKVWougui7nWSrnP/eza0Rqtt7ZU=";
+    hash = "sha256-16GrLppnFyXCyTOgLu1f+1CwJxOFTABE9b+72U13DoE=";
   };
 
   build-system = [ setuptools ];
