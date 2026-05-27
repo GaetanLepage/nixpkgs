@@ -26,8 +26,8 @@ let
     benchmark = fetchFromGitHub {
       owner = "google";
       repo = "benchmark";
-      rev = "5c55f5d4f45a1b09c5d98aa63a671993ebd42c69";
-      hash = "sha256-CChXn58cqam3d6Q61ZJMr5NFq1Ezc5uywA7FSPhk4GI=";
+      rev = "834a61fc65e8b7885fcf177f1230ae4b897118fa";
+      hash = "sha256-V5pVCG5QdFlgBIVKMv4jyTTB22BWfTHD3HolVPDFpgQ=";
     };
     ccd = fetchFromGitHub {
       owner = "danfis";
@@ -38,8 +38,8 @@ let
     eigen3 = fetchFromGitLab {
       owner = "libeigen";
       repo = "eigen";
-      rev = "75bcd155c40cb48e647c87c3f29052360255bc9e";
-      hash = "sha256-ZBm3ac6Kt7gOqNip6PeNNMiOF0fwG+7PJYA47KT0ogI=";
+      rev = "ea13a98decd497a8c5588fb5de71b57bcf10d864";
+      hash = "sha256-v9bNWc9yfK3vG8hYhQ7vkc7DHaoPF6RAKfX9kC0Gw8c=";
     };
     googletest = fetchFromGitHub {
       owner = "google";
@@ -52,6 +52,12 @@ let
       repo = "lodepng";
       rev = "17d08dd26cac4d63f43af217ebd70318bfb8189c";
       hash = "sha256-vnw52G0lY68471dzH7NXc++bTbLRsITSxGYXOTicA5w=";
+    };
+    miniz = fetchFromGitHub {
+      owner = "richgel999";
+      repo = "miniz";
+      rev = "d10b03cc73475af673df40f06e5cefd1d5f940d9";
+      hash = "sha256-hRB/0TVVQjr4VwjozfRnYKUJfeqO+1PNfdvP/rrOCR4=";
     };
     qhull = fetchFromGitHub {
       owner = "qhull";
@@ -82,7 +88,7 @@ let
 in
 stdenv.mkDerivation (finalAttrs: {
   pname = "mujoco";
-  version = "3.8.1";
+  version = "3.9.0";
 
   __structuredAttrs = true;
   strictDeps = true;
@@ -93,7 +99,7 @@ stdenv.mkDerivation (finalAttrs: {
     owner = "google-deepmind";
     repo = "mujoco";
     tag = finalAttrs.version;
-    hash = "sha256-eoZblIIH+tUNKPdVERGh1dE0KoWwMpP0LA6FgcJCiNU=";
+    hash = "sha256-UfIpBLiNJqK/g0ckBntSQL3azzBcBzR9Sw52bNaxGLA=";
   };
 
   patches = [
@@ -141,6 +147,7 @@ stdenv.mkDerivation (finalAttrs: {
     ln -s ${pin.eigen3} build/_deps/eigen3-src
     ln -s ${pin.googletest} build/_deps/googletest-src
     ln -s ${pin.lodepng} build/_deps/lodepng-src
+    ln -s ${pin.miniz} build/_deps/miniz-src
   ''
   # qhull is patched by mujoco's cmake and thus needs to be writable
   # https://github.com/google-deepmind/mujoco/blob/3.4.0/cmake/MujocoDependencies.cmake#L132-L135
