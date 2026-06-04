@@ -39,42 +39,42 @@ let
     "3.11-x86_64-linux" = getSrcFromPypi {
       platform = "manylinux_2_27_x86_64";
       dist = "cp311";
-      hash = "sha256-lXMXyv8eawBqE1UXM3cN8jWidHBkviawJ0YP46WPWO4=";
+      hash = "sha256-ju/19gTPQPD7LSoxqvhHhm0iLliqNwLRxAx1sIWmfIs=";
     };
     "3.11-aarch64-linux" = getSrcFromPypi {
       platform = "manylinux_2_27_aarch64";
       dist = "cp311";
-      hash = "sha256-GkpKVqgyrTDgHBQIWx+iRApV+kzggI5AXnNlDv+K+zE=";
+      hash = "sha256-Xi3MBaa8/L6yN7whDgb+odeq7WGgGNptiA+MMGJqYm8=";
     };
     "3.12-x86_64-linux" = getSrcFromPypi {
       platform = "manylinux_2_27_x86_64";
       dist = "cp312";
-      hash = "sha256-oWugDXI2YUWCfKOajISfn+4Rd9ZzjJ7f1ys6n+31zxg=";
+      hash = "sha256-g+d0D2U2o9yCzfHVEMlEvL3P0bNqv4da3EAT/qO/k04=";
     };
     "3.12-aarch64-linux" = getSrcFromPypi {
       platform = "manylinux_2_27_aarch64";
       dist = "cp312";
-      hash = "sha256-6vGmGVqg60i0IMcfIrktGXeNlIAkl3yuRkEnnV9sH4E=";
+      hash = "sha256-NNYkhe4m2NabM2KRgIqPiGVnl2B+LfAQgvwIJCkuEdk=";
     };
     "3.13-x86_64-linux" = getSrcFromPypi {
       platform = "manylinux_2_27_x86_64";
       dist = "cp313";
-      hash = "sha256-7QdNN5Z7zmHBuv3fndCoMCMGwS+QcAylrfo9CP3Uruc=";
+      hash = "sha256-pqDBIZZPtftvX0IvgiIX6pO8RNupUUYyJw5/6NvdISw=";
     };
     "3.13-aarch64-linux" = getSrcFromPypi {
       platform = "manylinux_2_27_aarch64";
       dist = "cp313";
-      hash = "sha256-dHnmfZ2Y1KD1JflPi4GIDcwFhjH23hGLkd6R2xtAle0=";
+      hash = "sha256-WAzTzHREllCwcA4N8rmaGTuSj3wGA9SzBCXcPA/dDsY=";
     };
     "3.14-x86_64-linux" = getSrcFromPypi {
       platform = "manylinux_2_27_x86_64";
       dist = "cp314";
-      hash = "sha256-96ahiBNJ3DnyRIGioBn/KUuUkJuAqIge/iHUW2pfaR0=";
+      hash = "sha256-c2YhLtfPIpWPkcZAkiaOV0mh7j4U2beLEQX6f8GvXtY=";
     };
     "3.14-aarch64-linux" = getSrcFromPypi {
       platform = "manylinux_2_27_aarch64";
       dist = "cp314";
-      hash = "sha256-iIb8V5df7gG+FyX4mLaSkvYVtwgwrvXC+95jgzNha10=";
+      hash = "sha256-e1pspSiG1aF9d6pgUFID6w4uWHHBHmnaY2CUQWFoWzs=";
     };
   };
 in
