@@ -27,14 +27,16 @@ assert (
   ]
 );
 
-stdenv.mkDerivation rec {
+stdenv.mkDerivation (finalAttrs: {
   pname = "tblite";
   version = "0.5.0";
+  __structuredAttrs = true;
+  strictDeps = true;
 
   src = fetchFromGitHub {
     owner = "tblite";
     repo = "tblite";
-    rev = "v${version}";
+    tag = "v${finalAttrs.version}";
     hash = "sha256-hePy/slEeM2o1gtrAbq/nkEUILa6oQjkD2ddDstQ2Zc=";
   };
 
@@ -78,7 +80,9 @@ stdenv.mkDerivation rec {
     "dev"
   ];
 
-  checkInputs = [
+  nativeCheckInputs = [
+    # Runs python test drivers (test/*/tester.py) during checkPhase, so it must be available on the
+    # build host (strictDeps)
     python3
   ];
 
@@ -100,7 +104,8 @@ stdenv.mkDerivation rec {
       lgpl3Plus
     ];
     homepage = "https://github.com/tblite/tblite";
+    changelog = "https://github.com/tblite/tblite/releases/tag/${finalAttrs.src.tag}";
     platforms = lib.platforms.linux;
     maintainers = [ lib.maintainers.sheepforce ];
   };
-}
+})
