@@ -11,6 +11,7 @@
   cadical,
   cadical' ? cadical.override { version = "2.1.3"; },
   leangz,
+  openssl,
   pkg-config,
   libuv,
   perl,
@@ -22,7 +23,7 @@
 let
   lean4 = stdenv.mkDerivation (finalAttrs: {
     pname = "lean4";
-    version = "4.30.0";
+    version = "4.33.0";
 
     mimalloc-src = fetchFromGitHub {
       owner = "microsoft";
@@ -35,7 +36,7 @@ let
       owner = "leanprover";
       repo = "lean4";
       tag = "v${finalAttrs.version}";
-      hash = "sha256-YTsfIppd6km7wOjAxRH5KMPsW++ztFDCJT2up72J86Q=";
+      hash = "sha256-avTsPLjouuxejTb1kVqbNbhI9CKZuqhGINAy3TaRNcE=";
     };
 
     # Vendor mimalloc. Upstream has since partially adopted FetchContent:
@@ -48,15 +49,6 @@ let
         pattern = "\${LEAN_BINARY_DIR}/../mimalloc/src/mimalloc";
       in
       ''
-        substituteInPlace src/CMakeLists.txt \
-          --replace-fail 'set(GIT_SHA1 "")' 'set(GIT_SHA1 "${finalAttrs.src.tag}")'
-
-        rm -rf src/lake/examples/git/
-
-        substituteInPlace CMakeLists.txt \
-          --replace-fail 'GIT_REPOSITORY https://github.com/microsoft/mimalloc' \
-                         'SOURCE_DIR "${finalAttrs.mimalloc-src}"' \
-          --replace-fail 'GIT_TAG ${finalAttrs.mimalloc-src.tag}' ""
         for file in stage0/src/CMakeLists.txt stage0/src/runtime/CMakeLists.txt src/CMakeLists.txt src/runtime/CMakeLists.txt; do
           substituteInPlace "$file" \
             --replace-fail '${pattern}' '${finalAttrs.mimalloc-src}'
@@ -83,6 +75,7 @@ let
       gmp
       libuv
       cadical'
+      openssl
     ];
 
     nativeCheckInputs = [
@@ -96,6 +89,7 @@ let
       "-DINSTALL_CADICAL=OFF"
       "-DINSTALL_LEANTAR=OFF"
       "-DUSE_MIMALLOC=ON"
+      "-DFETCHCONTENT_SOURCE_DIR_MIMALLOC=${finalAttrs.mimalloc-src}"
     ];
 
     passthru.tests = {
