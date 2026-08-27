@@ -1,0 +1,13 @@
+--- a/op_builder/cpu/comm.py
++++ b/op_builder/cpu/comm.py
+@@ -44,6 +44,10 @@
+ 
+ 
+ class ShareMemCommBuilder(CPUOpBuilder):
++
++    def extra_ldflags(self):
++        return ['-lomp']
++
+     BUILD_VAR = "DS_BUILD_SHM_COMM"
+     NAME = "deepspeed_shm_comm"
+ 

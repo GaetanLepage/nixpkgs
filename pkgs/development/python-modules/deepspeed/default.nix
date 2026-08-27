@@ -5,6 +5,7 @@
   fetchFromGitHub,
   symlinkJoin,
   cudaPackages,
+  llvmPackages,
 
   # build-system
   setuptools,
@@ -64,6 +65,14 @@ buildPythonPackage.override { inherit (torch) stdenv; } (finalAttrs: {
     hash = "sha256-OIy8AehiwKhbdWrWslwc3yimAH4QYobhgg/inkHDx/U=";
   };
 
+  patches =
+    # `ShareMemCommBuilder` compiles with `-fopenmp` but never links the OpenMP runtime. GCC
+    # implies `-lgomp`, clang does not, so the JIT-built op fails to `dlopen`:
+    # "symbol not found in flat namespace '___kmpc_for_static_fini'".
+    lib.optionals stdenv.hostPlatform.isDarwin [
+      ./darwin-link-libomp.patch
+    ];
+
   postPatch = ''
     substituteInPlace deepspeed/ops/op_builder/builder.py \
       --replace-fail \
@@ -75,6 +84,17 @@ buildPythonPackage.override { inherit (torch) stdenv; } (finalAttrs: {
   + ''
     touch build.txt
   ''
+  +
+    lib.optionalString stdenv.hostPlatform.isDarwin
+      # DeepSpeed probes for MPS by calling `torch.mps.current_allocated_memory()`, which segfaults
+      # when no Metal device is available (as in the sandbox).
+      # Use `torch.mps.is_available()`, which now exists, as upstream's own comment asks for.
+      ''
+        substituteInPlace accelerator/real_accelerator.py \
+          --replace-fail \
+            "torch.mps.current_allocated_memory()" \
+            "if not torch.mps.is_available(): raise RuntimeError('MPS is not available')"
+      ''
   + lib.optionalString cudaSupport (
     # Hardcode CUDA_HOME to nix store path for JIT op compilation at runtime
     ''
@@ -102,6 +122,10 @@ buildPythonPackage.override { inherit (torch) stdenv; } (finalAttrs: {
   preBuild = ''
     export TRITON_HOME=$(mktemp -d)
   '';
+
+  buildInputs = lib.optionals stdenv.hostPlatform.isDarwin [
+    llvmPackages.openmp
+  ];
 
   dependencies = [
     einops
@@ -162,7 +186,7 @@ buildPythonPackage.override { inherit (torch) stdenv; } (finalAttrs: {
     # Require unpackaged `mup`
     "tests/unit/runtime/test_mup_optimizers.py"
   ]
-  ++ lib.optionals (stdenv.hostPlatform.isLinux && stdenv.hostPlatform.isAarch64) [
+  ++ lib.optionals stdenv.hostPlatform.isAarch64 [
     # KeyError: 'vendor_id_raw'
     "tests/unit/ops/adam/test_cpu_adam.py"
     "tests/unit/ops/adam/test_hybrid_adam.py"
@@ -203,6 +227,9 @@ buildPythonPackage.override { inherit (torch) stdenv; } (finalAttrs: {
     "test_save_tensor_clone"
     "test_subclass_param_init"
   ];
+
+  # Most tests spin up a distributed process group over loopback
+  __darwinAllowLocalNetworking = true;
 
   # Some python tests are skipped unless a GPU is visible
   passthru.gpuCheck = finalAttrs.finalPackage.overrideAttrs {
