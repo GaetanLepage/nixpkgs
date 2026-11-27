@@ -1,9 +1,8 @@
 {
   lib,
-  stdenv,
   buildNpmPackage,
   fetchFromGitHub,
-  autoPatchelfHook,
+  callPackage,
   makeBinaryWrapper,
   nix-update-script,
   versionCheckHook,
@@ -12,6 +11,7 @@
   ripgrep,
   fd,
   libxcb,
+  tesseract,
 }:
 
 buildNpmPackage (finalAttrs: {
@@ -31,22 +31,31 @@ buildNpmPackage (finalAttrs: {
 
   nativeBuildInputs = [
     makeBinaryWrapper
-  ]
-  ++ lib.optionals stdenv.hostPlatform.isLinux [
-    autoPatchelfHook
   ];
 
-  buildInputs = lib.optionals stdenv.hostPlatform.isLinux [
-    stdenv.cc.cc.lib
+  buildInputs = [
     libxcb
   ];
 
-  autoPatchelfIgnoreMissingDeps = [
-    "libc.musl-x86_64.so.1"
-    "libc++.so.1"
-    "libc++abi.so.1"
-    "libunwind.so.1"
-  ];
+  postInstall =
+    let
+      nodeModules = "$out/lib/node_modules/@companion-ai/feynman/node_modules";
+    in
+    # Drop the prebuilt liteparse addon (and its bundled pdfium) in favor of one built from source.
+    # liteparse's loader falls back to `liteparse.node` next to its package.json.
+    ''
+      rm -rf ${nodeModules}/@llamaindex/liteparse-*
+      rm -f ${nodeModules}/@llamaindex/liteparse/{*.node,libpdfium.*}
+      ln -s ${finalAttrs.passthru.liteparse-napi}/lib/liteparse.node \
+        ${nodeModules}/@llamaindex/liteparse/liteparse.node
+    ''
+    # Rebuild pi-tui's X11 clipboard helper from the C source shipped in the npm tarball
+    + ''
+      piTuiNative=${nodeModules}/@earendil-works/pi-tui/native
+      rm -rf "$piTuiNative"/*/prebuilds
+      patchShebangs "$piTuiNative/linux/build.sh"
+      "$piTuiNative/linux/build.sh"
+    '';
 
   postFixup = ''
     wrapProgram $out/bin/feynman \
@@ -58,7 +67,8 @@ buildNpmPackage (finalAttrs: {
         ]
       } \
       --set-default PI_SKIP_VERSION_CHECK 1 \
-      --set-default FEYNMAN_TELEMETRY off
+      --set-default FEYNMAN_TELEMETRY off \
+      --set-default TESSDATA_PREFIX ${tesseract}/share/tessdata
   '';
 
   doInstallCheck = true;
@@ -68,7 +78,10 @@ buildNpmPackage (finalAttrs: {
   ];
   versionCheckKeepEnvironment = [ "HOME" ];
 
-  passthru.updateScript = nix-update-script { };
+  passthru = {
+    liteparse-napi = callPackage ./liteparse-napi.nix { };
+    updateScript = nix-update-script { };
+  };
 
   meta = {
     description = "Open source AI research agent";
@@ -78,5 +91,7 @@ buildNpmPackage (finalAttrs: {
     license = lib.licenses.mit;
     maintainers = with lib.maintainers; [ ZappD0S ];
     mainProgram = "feynman";
+    # The native addons are only built from source for Linux for now
+    platforms = lib.platforms.linux;
   };
 })
